@@ -13,7 +13,7 @@ require 'kdtree/version'
 # KDTree is a KD-Tree of dimension K. Points in the tree exist in
 # Euclidean space and distance calculations are performed as such.
 class KDTree
-  attr_reader :left, :right, :value, :dimension
+  attr_reader :left, :right, :value, :dimension, :axis
 
   # Creates a new +KDTree+ for the given points that lie in Euclidean space.
   # Points should derive from class #KDNode (extend from it).
@@ -183,6 +183,27 @@ class KDTree
     @right.in_order(&block) unless @right.nil?
   end
 
+  def find_min(dimension)
+    _find_min(self, dimension, @axis)
+  end
+
+  def _find_min(tree, dimension, cur_dim)
+    return nil if tree.nil?
+    if cur_dim == dimension
+      if tree.left.nil?
+        return tree.value[dimension]
+      else
+        _find_min(tree.left, dimension, tree.axis)
+      end
+    else
+      return [
+        _find_min(tree.left, dimension, tree.axis),
+        _find_min(tree.right, dimension, tree.axis),
+        tree.value[dimension]
+      ].reject { |x| x.nil? }.min
+    end
+  end
+
   def leaf?
     @left.nil? and @right.nil?
   end
@@ -329,7 +350,7 @@ class KDNode
   end
 
   def to_s
-    "Point[#{@point.to_a.join(', ')}] #{self.instance_variables}"
+    "Point[#{@point.to_a.join(', ')}]"
   end
 
   # Returns the coordinate along the given axis (starting at 0).
@@ -338,12 +359,7 @@ class KDNode
     if index < 0 || index >= @point.size
       raise ArgumentError, "#{index} is out of range. Should be between 0 and #{@point.size-1}"
     end
-    case index
-    when 0 then @point.x
-    when 1 then @point.y
-    when 2 then @point.z
-    else @point[index]
-    end
+    @point[index]
   end
 
   def ==(other)
