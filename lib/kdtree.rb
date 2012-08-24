@@ -204,6 +204,27 @@ class KDTree
     end
   end
 
+  def find_max(dimension)
+    _find_max(self, dimension, @axis)
+  end
+
+  def _find_max(tree, dimension, cur_dim)
+    return nil if tree.nil?
+    if cur_dim == dimension
+      if tree.right.nil?
+        return tree.value[dimension]
+      else
+        _find_max(tree.right, dimension, tree.axis)
+      end
+    else
+      return [
+        _find_max(tree.right, dimension, tree.axis),
+        _find_max(tree.left, dimension, tree.axis),
+        tree.value[dimension]
+      ].reject { |x| x.nil? }.max
+    end
+  end
+
   def leaf?
     @left.nil? and @right.nil?
   end
