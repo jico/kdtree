@@ -23,7 +23,7 @@ class KDTree
   def initialize(euclidean_points, dimension, depth=0)
     @dimension = dimension
     @axis = depth % @dimension # Cycle through axis as we descend down the tree
-    return if euclidean_points.nil? or euclidean_points.empty?
+    return if euclidean_points.nil? || euclidean_points.empty?
 
     # Sort and split tree by median point
     # NOTE: There is a big performance boost if use the x and y
@@ -39,8 +39,8 @@ class KDTree
     pivot = sorted.size / 2
     left_points = sorted[0...pivot]
     right_points = sorted[pivot+1..-1]
-    @left = KDTree.new(left_points, @dimension, depth+1) unless left_points.nil? or left_points.empty?
-    @right = KDTree.new(right_points, @dimension, depth+1) unless right_points.nil? or right_points.empty?
+    @left = KDTree.new(left_points, @dimension, depth+1) unless left_points.nil? || left_points.empty?
+    @right = KDTree.new(right_points, @dimension, depth+1) unless right_points.nil? || right_points.empty?
     @value = sorted[pivot]
   end
 
@@ -49,9 +49,9 @@ class KDTree
   # a balanced tree with three points has a depth of 2, and so on.
   # This is expensive; it explores the entire tree.
   def max_depth
-    if @value.nil? then
+    if @value.nil?
       0 # Empty tree
-    elsif leaf? then
+    elsif leaf?
       1 # Non-nil @value and is leaf
     else 
       # We already know this is not a leaf node; find the max depth
@@ -69,7 +69,7 @@ class KDTree
   # Determines if this tree is balanced or not. 
   # Expensive; explores the entire tree. 
   def balanced?
-    if @value.nil? or leaf? then
+    if @value.nil? || leaf?
       true # An empty tree/leaf node is already balanced
     else
       left_depth = @left.nil? ? 0 : @left.max_depth
@@ -93,19 +93,20 @@ class KDTree
   def _rebuild(exclude, exclude_root=false)
     exclude = [] if exclude.nil?
     points = []
-    points << @value unless exclude_root or exclude.include?(@value)
+    points << @value unless exclude_root || exclude.include?(@value)
     @left.each { |pt| points << pt unless exclude.include?(pt) } unless @left.nil?
     @right.each { |pt| points << pt unless exclude.include?(pt) } unless @right.nil?
     KDTree.new(points, @dimension)
   end
   protected :_rebuild
 
-  # Removes just the root node of this tree (that is, the "current value").  
-  # After calling this method, the root value will change to one of the 
+  # Removes just the root node of this tree (that is, the "current value").
+  # After calling this method, the root value will change to one of the
   # descendant nodes.
   # This is expensive; it will rebuild the entire tree rooted at this node.
+  # TODO: Refactor this without completely rebuilding the tree.
   def remove!
-    # Rebuild this tree without the root node.  
+    # Rebuild this tree without the root node.
     tree = _rebuild(nil, true)
 
     # Replace ourself with the new tree
@@ -118,26 +119,26 @@ class KDTree
   # Be aware that as you insert points, the tree may become increasingly
   # imbalanced.
   def insert_point(point)
-    if @value.nil? then
+    if @value.nil?
       # Empty tree
       @value = point
       return
     end
 
-    # Decide which side of the hyperplane this point goes on 
+    # Decide which side of the hyperplane this point goes on
     # (for points lying on the hyperplane, the side is arbitrary).
     # After that, try to put the point there, or if it's already
     # occupied by another tree, try to put it into that tree.
-    # TODO: You could use the first-three-dimensions compare here to 
+    # TODO: You could use the first-three-dimensions compare here to
     # potentially speed things up
-    if point[@axis] >= @value[@axis] then
-      if @right.nil? then
+    if point[@axis] >= @value[@axis]
+      if @right.nil?
         @right = KDTree.new([point], @dimension, @axis + 1)
       else
         @right.insert_point(point)
       end
     else
-      if @left.nil? then
+      if @left.nil?
         @left = KDTree.new([point], @dimension, @axis + 1)
       else
         @left.insert_point(point)
@@ -158,7 +159,7 @@ class KDTree
   # values
   def each(&block)
     @left.each(&block) unless @left.nil?
-    block.call(@value) if @value and block_given?
+    block.call(@value) if @value && block_given?
     @right.each(&block) unless @right.nil?
   end
 
@@ -203,6 +204,7 @@ class KDTree
       ].reject { |x| x.nil? }.min
     end
   end
+  protected :_find_min
 
   def find_max(dimension)
     _find_max(self, dimension, @axis)
@@ -224,9 +226,10 @@ class KDTree
       ].reject { |x| x.nil? }.max
     end
   end
+  protected :_find_max
 
   def leaf?
-    @left.nil? and @right.nil?
+    @left.nil? && @right.nil?
   end
 
   # Finds the nearest point in receiver to target_point, or nil, if there
@@ -237,7 +240,7 @@ class KDTree
 
   # Find the nearest +k+ points in receiver to +target_point+.  Returns an
   # array of at most k SearchResults. If this tree contains several
-  # points at the same distance, at most k of them will be returned. 
+  # points at the same distance, at most k of them will be returned.
   def nearest_k(target_point, k=1)
     bestk = BestK.new(k)
     _nearest_k(target_point, bestk)
@@ -321,11 +324,11 @@ class KDTree
   end
 
   def inspect
-    "#{@dimension}DTree (inspect): value #{value.inspect} LEFT #{@left.to_s} RIGHT: #{@right.to_s}"
+    "#{@dimension}DTree (inspect): value #{value.inspect} LEFT: #{@left.to_s} RIGHT: #{@right.to_s}"
   end
 
   def to_s
-    "#{@dimension}DTree (to_s): value #{value.inspect} LEFT #{@left.__id__} RIGHT: #{@right.__id__}"
+    "#{@dimension}DTree (to_s): value #{value.inspect} LEFT: #{@left.__id__} RIGHT: #{@right.__id__}"
   end
 end
 
