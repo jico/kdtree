@@ -7,6 +7,7 @@
 # used over direct indexing when possible to yield better perfomance.
 
 require 'matrix'
+require 'syck'
 require 'kdtree/heap'
 require 'kdtree/version'
 
