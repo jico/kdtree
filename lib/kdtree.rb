@@ -84,7 +84,7 @@ class KDTree
   def rebuild
     points = []
     each { |pt| points << pt }
-    KDTree.new(points, @dimension)      
+    KDTree.new(points, @dimension)
   end
 
   # Behaves as #rebuild indicates, but allows the exclusion of points
@@ -355,7 +355,7 @@ class KDNode
 
   # Initializes this point with a +point+ (vector or array) of coordinates
   # If the point is of type Array, it will convert it to a Vector.
-  def initialize(point, options={})
+  def initialize(point, data=nil)
     if point.kind_of? Array
       @point = Vector.elements(point)
     elsif point.kind_of? Vector
@@ -363,10 +363,7 @@ class KDNode
     else
       raise ArgumentError, "Invalid point #{point}. Must be Vector or Array."
     end
-    @data = options.delete :data
-    options.each do |k,v|
-      instance_variable_set("@#{k.to_s}".to_sym, v)
-    end
+    @data = data
     @x, @y, @z = point[0], point[1], point[2]
   end
 
