@@ -41,7 +41,7 @@ class KDTree
     right_points = sorted[pivot+1..-1]
     @left = KDTree.new(left_points, @dimension, depth+1) unless left_points.nil? || left_points.empty?
     @right = KDTree.new(right_points, @dimension, depth+1) unless right_points.nil? || right_points.empty?
-    @value = sorted[pivot]
+    @value = sorted[pivot].map(&:to_f)
   end
 
   # Returns maximum node depth of tree.
