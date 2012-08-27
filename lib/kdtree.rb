@@ -41,7 +41,7 @@ class KDTree
     right_points = sorted[pivot+1..-1]
     @left = KDTree.new(left_points, @dimension, depth+1) unless left_points.nil? || left_points.empty?
     @right = KDTree.new(right_points, @dimension, depth+1) unless right_points.nil? || right_points.empty?
-    @value = sorted[pivot].map(&:to_f)
+    @value = sorted[pivot]
   end
 
   # Returns maximum node depth of tree.
@@ -366,6 +366,7 @@ class KDNode
     else
       raise ArgumentError, "Invalid point #{point}. Must be Vector or Array."
     end
+    @point = Vector.elements(@point.to_a.map(&:to_f))
     @data = data
     @x, @y, @z = point[0], point[1], point[2]
   end
